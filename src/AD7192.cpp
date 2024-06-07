@@ -83,19 +83,19 @@ void AD7192readdata(unsigned char *WriteBuffer, unsigned char *ReadBuffer, unsig
 {
     // 开始SPI事务
     spi->beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE3));
-    
+
     // 拉低片选引脚使能设备
     digitalWrite(AD7192_CS_Pin, LOW);
-    
+
     // 传输数据
     spi->transferBytes(WriteBuffer, ReadBuffer, NumberOfByte);
-    
+
     // 拉高片选引脚禁用设备
     digitalWrite(AD7192_CS_Pin, HIGH);
-    
+
     // 结束SPI事务
     spi->endTransaction();
-    
+
     // 打印读取的数据
     // Serial.println("AD7192readdata: ");
     // for (int i = 0; i < NumberOfByte; i++)
@@ -331,6 +331,13 @@ uint32_t AD7192ReadConvertingData(void)
     WriteBuf[1] = NOP;
     WriteBuf[2] = NOP;
     WriteBuf[3] = NOP;
+
+    // 等待RDY引脚变低，表示数据准备好
+    while (digitalRead(AD7192_MISO_Pin) == HIGH)
+    {
+        // 添加适当的延时以避免忙等
+        delay(1);
+    }
 
     // while (digitalRead(AD7192_MISO_Pin) == 0)
     // {
